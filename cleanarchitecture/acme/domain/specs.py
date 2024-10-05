@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 
 from acme.domain.entities.application import Application
+from acme.domain.repositories import ICreditCardApplicationRepository
 from acme.domain.services.credit_score import BankCreditScoreService
 from acme.domain.services.criminal_record import BankCriminalRecordService
 
@@ -30,3 +32,20 @@ class HasNoCriminalRecord(Specification):
 
     def is_satisfied_by(self, application: "Application") -> bool:
         return not self.__bank_criminal_record_service.has_criminal_record(application)
+
+
+class HasNotAppliedForCreditCardInTheLast6Months(Specification):
+    def __init__(
+        self, credit_card_application_repository: "ICreditCardApplicationRepository"
+    ):
+        self.__credit_card_application_repository = credit_card_application_repository
+
+    def is_satisfied_by(self, application: "Application") -> bool:
+        six_months_ago = datetime.now() - timedelta(days=180)
+
+        applications_in_the_last_6_months = (
+            self.__credit_card_application_repository.fetch_since_for_applicant(
+                six_months_ago, application.ssn
+            )
+        )
+        return not applications_in_the_last_6_months

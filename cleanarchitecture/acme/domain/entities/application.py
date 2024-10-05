@@ -1,4 +1,5 @@
 from abc import ABC
+from datetime import datetime
 from enum import Enum
 
 
@@ -14,13 +15,19 @@ class Application(ABC):
         self.amount = amount
         self.credit_score: int | None = None
         self.status = ApplicationStatus.PENDING
+        self.approved_at: datetime | None = None
 
     def approve(self):
         self.status = ApplicationStatus.APPROVED
+        self.approved_at = datetime.now()
 
     def reject(self):
         self.status = ApplicationStatus.REJECTED
 
 
 class LoanApplication(Application):
+    pass
+
+
+class CreditCardApplication(Application):
     pass
