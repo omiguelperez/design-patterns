@@ -27,33 +27,51 @@ class LoanApplication:
         self.status = LoanApplicationStatus.REJECTED
 
 
-class BankFinancialEmployee:
-    def __init__(self):
-        self.__bank_criminal_record_service: BankCriminalRecordService = None
-        self.__bank_credit_score_service: BankCreditScoreService = None
+class Specification(ABC):
+    @abstractmethod
+    def is_satisfied_by(self, candidate: "LoanApplication") -> bool:
+        pass
 
-    def use_criminal_record_service(self, service: "BankCriminalRecordService"):
-        self.__bank_criminal_record_service = service
 
-    def use_credit_score_service(self, service: "BankCreditScoreService"):
-        self.__bank_credit_score_service = service
+class IsCreditScoreAcceptable(Specification):
+    GOOD_CREDIT_SCORE_THRESHOLD = 700
 
-    def apply_loan(self, application: "LoanApplication"):
-        if self.__has_good_credit_score(application) and not self.__has_criminal_record(
-            application
-        ):
-            application.approve()
-        else:
-            application.reject()
+    def __init__(self, bank_credit_score_service: "BankCreditScoreService"):
+        self.__bank_credit_score_service = bank_credit_score_service
 
-    def __has_good_credit_score(self, application: "LoanApplication") -> bool:
+    def is_satisfied_by(self, application: "LoanApplication") -> bool:
         application.credit_score = (
             self.__bank_credit_score_service.get_application_credit_score(application)
         )
-        return application.credit_score > 700
+        return application.credit_score >= self.GOOD_CREDIT_SCORE_THRESHOLD
 
-    def __has_criminal_record(self, application: "LoanApplication") -> bool:
-        return self.__bank_criminal_record_service.has_criminal_record(application)
+
+class HasNoCriminalRecord(Specification):
+    def __init__(self, bank_criminal_record_service: "BankCriminalRecordService"):
+        self.__bank_criminal_record_service = bank_criminal_record_service
+
+    def is_satisfied_by(self, application: "LoanApplication") -> bool:
+        return not self.__bank_criminal_record_service.has_criminal_record(application)
+
+
+class BankFinancialEmployee:
+    def __init__(self):
+        self.__bank_requirements_to_approve_loan = []
+
+    def let_him_know_requirements_to_approve_loan(
+        self, *requirements: list[Specification]
+    ):
+        self.__bank_requirements_to_approve_loan.extend(requirements)
+
+    def apply_loan(self, application: "LoanApplication"):
+        all_requirements_met = all(
+            requirement.is_satisfied_by(application)
+            for requirement in self.__bank_requirements_to_approve_loan
+        )
+        if all_requirements_met:
+            application.approve()
+        else:
+            application.reject()
 
 
 class ICreditScoreService(ABC):
@@ -161,6 +179,7 @@ class LoanApplyUseCase:
         bank_criminal_record_service: BankCriminalRecordService,
     ):
         self.__loan_application_repository = loan_application_repository
+
         self.__bank_credit_score_service = bank_credit_score_service
         self.__bank_criminal_record_service = bank_criminal_record_service
 
@@ -168,8 +187,10 @@ class LoanApplyUseCase:
         application = LoanApplication(request.name, request.amount)
 
         bank_employee = BankFinancialEmployee()
-        bank_employee.use_criminal_record_service(self.__bank_criminal_record_service)
-        bank_employee.use_credit_score_service(self.__bank_credit_score_service)
+        bank_employee.let_him_know_requirements_to_approve_loan(
+            IsCreditScoreAcceptable(self.__bank_credit_score_service),
+            HasNoCriminalRecord(self.__bank_criminal_record_service),
+        )
 
         bank_employee.apply_loan(application)
 
