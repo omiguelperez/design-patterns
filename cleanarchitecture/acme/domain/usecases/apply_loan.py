@@ -19,6 +19,7 @@ class LoanApplicationResponse(BaseModel):
     amount: float
     credit_score: Optional[int]
     status: ApplicationStatus
+    rejection_reasons: list[str]
 
 
 class LoanApplyUseCase:
@@ -51,4 +52,5 @@ class LoanApplyUseCase:
             amount=application.amount,
             credit_score=application.credit_score,
             status=application.status,
+            rejection_reasons=application.rejection_reasons,
         )

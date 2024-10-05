@@ -18,11 +18,14 @@ class BankApprover(BankEmployee):
         self.__bank_requirements_to_approve_application.extend(requirements)
 
     def review_application(self, application: "Application"):
-        all_requirements_met = all(
-            requirement.is_satisfied_by(application)
+        failed_requirements = [
+            requirement
             for requirement in self.__bank_requirements_to_approve_application
-        )
-        if all_requirements_met:
-            application.approve()
+            if not requirement.is_satisfied_by(application)
+        ]
+
+        if any(failed_requirements):
+            reasons = [requirement.fail_reason for requirement in failed_requirements]
+            application.reject(reasons)
         else:
-            application.reject()
+            application.approve()

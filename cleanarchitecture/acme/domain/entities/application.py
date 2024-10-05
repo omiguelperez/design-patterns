@@ -16,13 +16,15 @@ class Application(ABC):
         self.credit_score: int | None = None
         self.status = ApplicationStatus.PENDING
         self.approved_at: datetime | None = None
+        self.rejection_reasons: set[str] = []
 
     def approve(self):
         self.status = ApplicationStatus.APPROVED
         self.approved_at = datetime.now()
 
-    def reject(self):
+    def reject(self, reasons: list[str]):
         self.status = ApplicationStatus.REJECTED
+        self.rejection_reasons.extend(reasons)
 
 
 class LoanApplication(Application):

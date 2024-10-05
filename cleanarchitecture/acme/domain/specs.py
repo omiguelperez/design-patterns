@@ -8,6 +8,8 @@ from acme.domain.services.criminal_record import BankCriminalRecordService
 
 
 class Specification(ABC):
+    fail_reason: str = "Failed to meet certain criteria. No more information available."
+
     @abstractmethod
     def is_satisfied_by(self, candidate: "Application") -> bool:
         pass
@@ -15,6 +17,7 @@ class Specification(ABC):
 
 class IsCreditScoreAcceptable(Specification):
     GOOD_CREDIT_SCORE_THRESHOLD = 700
+    fail_reason = "Credit score is not acceptable."
 
     def __init__(self, bank_credit_score_service: "BankCreditScoreService"):
         self.__bank_credit_score_service = bank_credit_score_service
@@ -27,6 +30,8 @@ class IsCreditScoreAcceptable(Specification):
 
 
 class HasNoCriminalRecord(Specification):
+    fail_reason = "Applicant has a criminal record."
+
     def __init__(self, bank_criminal_record_service: "BankCriminalRecordService"):
         self.__bank_criminal_record_service = bank_criminal_record_service
 
@@ -35,6 +40,8 @@ class HasNoCriminalRecord(Specification):
 
 
 class HasNotAppliedForCreditCardInTheLast6Months(Specification):
+    fail_reason = "Applicant has applied for a credit card in the last 6 months."
+
     def __init__(
         self, credit_card_application_repository: "ICreditCardApplicationRepository"
     ):
