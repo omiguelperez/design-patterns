@@ -1,31 +1,24 @@
 from typing import Optional
 
-from pydantic import BaseModel
-
-from acme.domain.entities import (
-    BankFinancialEmployee,
-    LoanApplication,
-    LoanApplicationStatus,
-)
+from acme.domain.entities.application import ApplicationStatus, LoanApplication
+from acme.domain.entities.approvers import BankApprover
 from acme.domain.repositories import ILoanApplicationRepository
 from acme.domain.services.credit_score import BankCreditScoreService
 from acme.domain.services.criminal_record import BankCriminalRecordService
-from acme.domain.specs.loan_application import (
-    HasNoCriminalRecord,
-    IsCreditScoreAcceptable,
-)
+from acme.domain.specs import HasNoCriminalRecord, IsCreditScoreAcceptable
+from pydantic import BaseModel
 
 
 class LoanApplicationRequest(BaseModel):
-    name: str
+    ssn: str
     amount: float
 
 
 class LoanApplicationResponse(BaseModel):
-    name: str
+    ssn: str
     amount: float
     credit_score: Optional[int]
-    status: LoanApplicationStatus
+    status: ApplicationStatus
 
 
 class LoanApplyUseCase:
@@ -41,20 +34,20 @@ class LoanApplyUseCase:
         self.__bank_criminal_record_service = bank_criminal_record_service
 
     def execute(self, request: "LoanApplicationRequest") -> "LoanApplicationResponse":
-        application = LoanApplication(request.name, request.amount)
+        application = LoanApplication(request.ssn, request.amount)
 
-        bank_employee = BankFinancialEmployee()
-        bank_employee.let_him_know_requirements_to_approve_loan(
+        bank_employee = BankApprover()
+        bank_employee.let_him_know_requirements_to_approve_application(
             IsCreditScoreAcceptable(self.__bank_credit_score_service),
             HasNoCriminalRecord(self.__bank_criminal_record_service),
         )
 
-        bank_employee.apply_loan(application)
+        bank_employee.review_application(application)
 
         self.__loan_application_repository.save(application)
 
         return LoanApplicationResponse(
-            name=application.name,
+            ssn=application.ssn,
             amount=application.amount,
             credit_score=application.credit_score,
             status=application.status,

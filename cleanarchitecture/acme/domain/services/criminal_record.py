@@ -1,23 +1,23 @@
 from abc import ABC, abstractmethod
 
-from acme.domain.entities import LoanApplication
+from acme.domain.entities.application import Application
 
 
 class ICriminalRecordService(ABC):
     @abstractmethod
-    def has_criminal_record(self, application: "LoanApplication") -> bool:
+    def has_criminal_record(self, application: "Application") -> bool:
         raise NotImplementedError
 
 
 class INationalCriminalRecordService(ICriminalRecordService):
     @abstractmethod
-    def has_criminal_record(self, application: "LoanApplication") -> bool:
+    def has_criminal_record(self, application: "Application") -> bool:
         raise NotImplementedError
 
 
 class IInternationalCriminalRecordService(ICriminalRecordService):
     @abstractmethod
-    def has_criminal_record(self, application: "LoanApplication") -> bool:
+    def has_criminal_record(self, application: "Application") -> bool:
         raise NotImplementedError
 
 
@@ -32,7 +32,7 @@ class BankCriminalRecordService:
             international_criminal_record_service
         )
 
-    def has_criminal_record(self, application: "LoanApplication") -> bool:
+    def has_criminal_record(self, application: "Application") -> bool:
         criminal_record_services = [
             self.__national_criminal_record_service,
             self.__international_criminal_record_service,

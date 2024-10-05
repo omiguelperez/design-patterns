@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from acme.domain.entities import LoanApplication
+from acme.domain.entities.application import LoanApplication
 
 
 class ILoanApplicationRepository(ABC):

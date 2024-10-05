@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-from acme.domain.entities import LoanApplication
+from acme.domain.entities.application import Application
 
 
 class ICreditScoreService(ABC):
     @abstractmethod
-    def get_credit_score(self, application: "LoanApplication") -> int:
+    def get_credit_score(self, application: "Application") -> int:
         raise NotImplementedError
 
 
@@ -32,7 +32,7 @@ class BankCreditScoreService:
         self.__trans_union_credit_score_service = trans_union_credit_score_service
         self.__equifax_credit_score = equifax_credit_score_service
 
-    def get_application_credit_score(self, application: LoanApplication) -> int:
+    def get_application_credit_score(self, application: "Application") -> int:
         credit_score_services = [
             self.__experian_credit_score_service,
             self.__trans_union_credit_score_service,

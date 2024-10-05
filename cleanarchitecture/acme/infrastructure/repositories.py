@@ -1,4 +1,4 @@
-from acme.domain.entities import LoanApplication
+from acme.domain.entities.application import LoanApplication
 from acme.domain.repositories import ILoanApplicationRepository
 
 

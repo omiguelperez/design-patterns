@@ -1,4 +1,4 @@
-from acme.domain.entities import LoanApplication
+from acme.domain.entities.application import Application
 from acme.domain.services.criminal_record import (
     IInternationalCriminalRecordService,
     INationalCriminalRecordService,
@@ -6,10 +6,10 @@ from acme.domain.services.criminal_record import (
 
 
 class MockNationalCriminalRecordService(INationalCriminalRecordService):
-    def has_criminal_record(self, application: LoanApplication) -> bool:
+    def has_criminal_record(self, application: Application) -> bool:
         return False
 
 
 class MockInternationalCriminalRecordService(IInternationalCriminalRecordService):
-    def has_criminal_record(self, application: LoanApplication) -> bool:
+    def has_criminal_record(self, application: Application) -> bool:
         return False
