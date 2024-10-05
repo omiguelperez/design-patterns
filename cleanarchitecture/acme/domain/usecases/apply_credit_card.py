@@ -44,12 +44,14 @@ class CreditCardApplyUseCase:
         application = CreditCardApplication(request.ssn, request.amount)
 
         bank_approver = BankApprover()
-        bank_approver.let_him_know_requirements_to_approve_application(
-            IsCreditScoreAcceptable(self.__bank_credit_score_service),
-            HasNoCriminalRecord(self.__bank_criminal_record_service),
-            HasNotAppliedForCreditCardInTheLast6Months(
-                self.__credit_card_application_repository
-            ),
+        bank_approver.add_approval_criteria(
+            [
+                IsCreditScoreAcceptable(self.__bank_credit_score_service),
+                HasNoCriminalRecord(self.__bank_criminal_record_service),
+                HasNotAppliedForCreditCardInTheLast6Months(
+                    self.__credit_card_application_repository
+                ),
+            ]
         )
 
         bank_approver.review_application(application)

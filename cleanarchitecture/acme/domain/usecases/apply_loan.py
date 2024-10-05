@@ -38,9 +38,11 @@ class LoanApplyUseCase:
         application = LoanApplication(request.ssn, request.amount)
 
         bank_employee = BankApprover()
-        bank_employee.let_him_know_requirements_to_approve_application(
-            IsCreditScoreAcceptable(self.__bank_credit_score_service),
-            HasNoCriminalRecord(self.__bank_criminal_record_service),
+        bank_employee.add_approval_criteria(
+            [
+                IsCreditScoreAcceptable(self.__bank_credit_score_service),
+                HasNoCriminalRecord(self.__bank_criminal_record_service),
+            ]
         )
 
         bank_employee.review_application(application)

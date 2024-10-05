@@ -10,22 +10,20 @@ class BankEmployee(ABC):
 
 class BankApprover(BankEmployee):
     def __init__(self):
-        self.__bank_requirements_to_approve_application = []
+        self.__bank_approval_criteria = []
 
-    def let_him_know_requirements_to_approve_application(
-        self, *requirements: list["Specification"]
-    ):
-        self.__bank_requirements_to_approve_application.extend(requirements)
+    def add_approval_criteria(self, approval_criteria: list["Specification"]):
+        self.__bank_approval_criteria.extend(approval_criteria)
 
     def review_application(self, application: "Application"):
-        failed_requirements = [
-            requirement
-            for requirement in self.__bank_requirements_to_approve_application
-            if not requirement.is_satisfied_by(application)
+        failed_criteria = [
+            criteria
+            for criteria in self.__bank_approval_criteria
+            if not criteria.is_satisfied_by(application)
         ]
 
-        if any(failed_requirements):
-            reasons = [requirement.fail_reason for requirement in failed_requirements]
+        if any(failed_criteria):
+            reasons = [criteria.fail_reason for criteria in failed_criteria]
             application.reject(reasons)
         else:
             application.approve()
