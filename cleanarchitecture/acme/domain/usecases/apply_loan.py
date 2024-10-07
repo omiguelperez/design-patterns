@@ -1,12 +1,12 @@
 from typing import Optional
 
-from acme.domain.entities.application import ApplicationStatus, LoanApplication
-from acme.domain.entities.approvers import BankApprover
-from acme.domain.factories import EligibilityCriteriaFactory
-from acme.domain.repositories import (
+from acme.domain.contracts.repositories import (
     IEligibilityCriteriaRepository,
     ILoanApplicationRepository,
 )
+from acme.domain.entities.application import ApplicationStatus, LoanApplication
+from acme.domain.entities.approvers import BankApprover
+from acme.domain.factories import EligibilityCriteriaFactory
 from pydantic import BaseModel
 
 

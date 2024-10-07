@@ -1,7 +1,7 @@
 from typing import Callable, Dict, Type
 
+from acme.domain.contracts.repositories import ICreditCardApplicationRepository
 from acme.domain.exceptions import SpecificationTypeNotFound
-from acme.domain.repositories import ICreditCardApplicationRepository
 from acme.domain.services.credit_score import BankCreditScoreService
 from acme.domain.services.criminal_record import BankCriminalRecordService
 from acme.domain.specs import (

@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from acme.domain.entities.application import LoanApplication
-from acme.domain.repositories import (
+from acme.domain.contracts.repositories import (
     IEligibilityCriteriaRepository,
     ILoanApplicationRepository,
 )
+from acme.domain.entities.application import LoanApplication
 from acme.domain.specs import (
     HasNoCriminalRecord,
     HasNotAppliedForCreditCardInTheLast6Months,

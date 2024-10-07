@@ -1,24 +1,9 @@
-from abc import ABC, abstractmethod
-
+from acme.domain.contracts.services import (
+    IEquifaxCreditScoreService,
+    IExperianCreditScoreService,
+    ITransUnionCreditScoreService,
+)
 from acme.domain.entities.application import Application
-
-
-class ICreditScoreService(ABC):
-    @abstractmethod
-    def get_credit_score(self, application: "Application") -> int:
-        raise NotImplementedError
-
-
-class IExperianCreditScoreService(ICreditScoreService):
-    pass
-
-
-class ITransUnionCreditScoreService(ICreditScoreService):
-    pass
-
-
-class IEquifaxCreditScoreService(ICreditScoreService):
-    pass
 
 
 class BankCreditScoreService:
@@ -38,7 +23,5 @@ class BankCreditScoreService:
             self.__trans_union_credit_score_service,
             self.__equifax_credit_score,
         ]
-        credit_scores = [
-            service.get_credit_score(application) for service in credit_score_services
-        ]
+        credit_scores = [service.get_credit_score(application) for service in credit_score_services]
         return sum(credit_scores) // len(credit_scores)

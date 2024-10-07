@@ -1,9 +1,9 @@
-from acme.domain.entities.application import Application
-from acme.domain.services.credit_score import (
+from acme.domain.contracts.services import (
     IEquifaxCreditScoreService,
     IExperianCreditScoreService,
     ITransUnionCreditScoreService,
 )
+from acme.domain.entities.application import Application
 
 
 class MockExperianCreditScoreService(IExperianCreditScoreService):

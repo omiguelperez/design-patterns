@@ -1,8 +1,8 @@
-from acme.domain.entities.application import Application
-from acme.domain.services.criminal_record import (
+from acme.domain.contracts.services import (
     IInternationalCriminalRecordService,
     INationalCriminalRecordService,
 )
+from acme.domain.entities.application import Application
 
 
 class MockNationalCriminalRecordService(INationalCriminalRecordService):

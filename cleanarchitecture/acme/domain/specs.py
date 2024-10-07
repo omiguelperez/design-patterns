@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 
+from acme.domain.contracts.repositories import ICreditCardApplicationRepository
 from acme.domain.entities.application import Application
-from acme.domain.repositories import ICreditCardApplicationRepository
 from acme.domain.services.credit_score import BankCreditScoreService
 from acme.domain.services.criminal_record import BankCriminalRecordService
 
