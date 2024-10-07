@@ -20,3 +20,13 @@ class ICreditCardApplicationRepository(ABC):
         self, since: datetime, applicant_ssn: str
     ) -> list["CreditCardApplication"]:
         raise NotImplementedError
+
+
+class IEligibilityCriteriaRepository(ABC):
+    @abstractmethod
+    def fetch_credit_card_approval_criteria_types(self) -> list[str]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def fetch_loan_approval_criteria_types(self) -> list[str]:
+        raise NotImplementedError

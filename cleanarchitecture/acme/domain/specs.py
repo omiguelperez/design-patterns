@@ -7,7 +7,7 @@ from acme.domain.services.credit_score import BankCreditScoreService
 from acme.domain.services.criminal_record import BankCriminalRecordService
 
 
-class Specification(ABC):
+class EligibilityCriterion(ABC):
     fail_reason: str = "Failed to meet certain criteria. No more information available."
 
     @abstractmethod
@@ -15,7 +15,7 @@ class Specification(ABC):
         pass
 
 
-class IsCreditScoreAcceptable(Specification):
+class IsCreditScoreAcceptable(EligibilityCriterion):
     GOOD_CREDIT_SCORE_THRESHOLD = 700
     fail_reason = "Credit score is not acceptable."
 
@@ -23,13 +23,13 @@ class IsCreditScoreAcceptable(Specification):
         self.__bank_credit_score_service = bank_credit_score_service
 
     def is_satisfied_by(self, application: "Application") -> bool:
-        application.credit_score = (
-            self.__bank_credit_score_service.get_application_credit_score(application)
+        application.credit_score = self.__bank_credit_score_service.get_application_credit_score(
+            application
         )
         return application.credit_score >= self.GOOD_CREDIT_SCORE_THRESHOLD
 
 
-class HasNoCriminalRecord(Specification):
+class HasNoCriminalRecord(EligibilityCriterion):
     fail_reason = "Applicant has a criminal record."
 
     def __init__(self, bank_criminal_record_service: "BankCriminalRecordService"):
@@ -39,12 +39,10 @@ class HasNoCriminalRecord(Specification):
         return not self.__bank_criminal_record_service.has_criminal_record(application)
 
 
-class HasNotAppliedForCreditCardInTheLast6Months(Specification):
+class HasNotAppliedForCreditCardInTheLast6Months(EligibilityCriterion):
     fail_reason = "Applicant has applied for a credit card in the last 6 months."
 
-    def __init__(
-        self, credit_card_application_repository: "ICreditCardApplicationRepository"
-    ):
+    def __init__(self, credit_card_application_repository: "ICreditCardApplicationRepository"):
         self.__credit_card_application_repository = credit_card_application_repository
 
     def is_satisfied_by(self, application: "Application") -> bool:

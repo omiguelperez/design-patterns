@@ -2,10 +2,11 @@ from typing import Optional
 
 from acme.domain.entities.application import ApplicationStatus, LoanApplication
 from acme.domain.entities.approvers import BankApprover
-from acme.domain.repositories import ILoanApplicationRepository
-from acme.domain.services.credit_score import BankCreditScoreService
-from acme.domain.services.criminal_record import BankCriminalRecordService
-from acme.domain.specs import HasNoCriminalRecord, IsCreditScoreAcceptable
+from acme.domain.factories import EligibilityCriteriaFactory
+from acme.domain.repositories import (
+    IEligibilityCriteriaRepository,
+    ILoanApplicationRepository,
+)
 from pydantic import BaseModel
 
 
@@ -26,24 +27,23 @@ class LoanApplyUseCase:
     def __init__(
         self,
         loan_application_repository: ILoanApplicationRepository,
-        bank_credit_score_service: BankCreditScoreService,
-        bank_criminal_record_service: BankCriminalRecordService,
+        elibility_criteria_repository: "IEligibilityCriteriaRepository",
+        elibility_criteria_factory: "EligibilityCriteriaFactory",
     ):
         self.__loan_application_repository = loan_application_repository
+        self.__eligibility_criteria_repository = elibility_criteria_repository
 
-        self.__bank_credit_score_service = bank_credit_score_service
-        self.__bank_criminal_record_service = bank_criminal_record_service
+        self.__eligibility_criteria_factory = elibility_criteria_factory
 
     def execute(self, request: "LoanApplicationRequest") -> "LoanApplicationResponse":
         application = LoanApplication(request.ssn, request.amount)
-
         bank_employee = BankApprover()
-        bank_employee.add_approval_criteria(
-            [
-                IsCreditScoreAcceptable(self.__bank_credit_score_service),
-                HasNoCriminalRecord(self.__bank_criminal_record_service),
-            ]
+
+        approval_criteria_types = (
+            self.__eligibility_criteria_repository.fetch_loan_approval_criteria_types()
         )
+        approval_criteria = self.__eligibility_criteria_factory.create_many(approval_criteria_types)
+        bank_employee.add_approval_criteria(approval_criteria=approval_criteria)
 
         bank_employee.review_application(application)
 

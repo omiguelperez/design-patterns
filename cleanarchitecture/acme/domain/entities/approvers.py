@@ -1,7 +1,7 @@
 from abc import ABC
 
 from acme.domain.entities.application import Application
-from acme.domain.specs import Specification
+from acme.domain.specs import EligibilityCriterion
 
 
 class BankEmployee(ABC):
@@ -12,7 +12,7 @@ class BankApprover(BankEmployee):
     def __init__(self):
         self.__bank_approval_criteria = []
 
-    def add_approval_criteria(self, approval_criteria: list["Specification"]):
+    def add_approval_criteria(self, approval_criteria: list["EligibilityCriterion"]):
         self.__bank_approval_criteria.extend(approval_criteria)
 
     def review_application(self, application: "Application"):

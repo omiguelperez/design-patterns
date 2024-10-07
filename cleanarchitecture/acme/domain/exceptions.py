@@ -1,0 +1,2 @@
+class SpecificationTypeNotFound(Exception):
+    pass

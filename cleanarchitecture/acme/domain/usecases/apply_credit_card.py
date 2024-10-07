@@ -2,13 +2,10 @@ from typing import Optional
 
 from acme.domain.entities.application import ApplicationStatus, CreditCardApplication
 from acme.domain.entities.approvers import BankApprover
-from acme.domain.repositories import ICreditCardApplicationRepository
-from acme.domain.services.credit_score import BankCreditScoreService
-from acme.domain.services.criminal_record import BankCriminalRecordService
-from acme.domain.specs import (
-    HasNoCriminalRecord,
-    HasNotAppliedForCreditCardInTheLast6Months,
-    IsCreditScoreAcceptable,
+from acme.domain.factories import EligibilityCriteriaFactory
+from acme.domain.repositories import (
+    ICreditCardApplicationRepository,
+    IEligibilityCriteriaRepository,
 )
 from pydantic import BaseModel
 
@@ -30,29 +27,23 @@ class CreditCardApplyUseCase:
     def __init__(
         self,
         credit_card_application_repository: "ICreditCardApplicationRepository",
-        bank_credit_score_service: "BankCreditScoreService",
-        bank_criminal_record_service: "BankCriminalRecordService",
+        elibility_criteria_repository: "IEligibilityCriteriaRepository",
+        elibility_criteria_factory: "EligibilityCriteriaFactory",
     ):
         self.__credit_card_application_repository = credit_card_application_repository
+        self.__eligibility_criteria_repository = elibility_criteria_repository
 
-        self.__bank_credit_score_service = bank_credit_score_service
-        self.__bank_criminal_record_service = bank_criminal_record_service
+        self.__eligibility_criteria_factory = elibility_criteria_factory
 
-    def execute(
-        self, request: "CreditCardApplicationRequest"
-    ) -> "CreditCardApplicationResponse":
+    def execute(self, request: "CreditCardApplicationRequest") -> "CreditCardApplicationResponse":
         application = CreditCardApplication(request.ssn, request.amount)
-
         bank_approver = BankApprover()
-        bank_approver.add_approval_criteria(
-            [
-                IsCreditScoreAcceptable(self.__bank_credit_score_service),
-                HasNoCriminalRecord(self.__bank_criminal_record_service),
-                HasNotAppliedForCreditCardInTheLast6Months(
-                    self.__credit_card_application_repository
-                ),
-            ]
+
+        aproval_criteria_types = (
+            self.__eligibility_criteria_repository.fetch_credit_card_approval_criteria_types()
         )
+        approval_criteria = self.__eligibility_criteria_factory.create_many(aproval_criteria_types)
+        bank_approver.add_approval_criteria(approval_criteria=approval_criteria)
 
         bank_approver.review_application(application)
 
